@@ -16,18 +16,6 @@
      state: latest
      update_cache: yes
 
-- name: Install libselinux as prerequisite for SELinux Ansible module
-  yum:
-    name: "{{item}}"
-    state: latest
-  with_items:
-    - libselinux-python
-    - libsemanage-python
-
-- name: Set SELinux in permissive mode until the machine is rebooted
-  shell: setenforce 0
-  ignore_errors: true
-
-include: elasticsearch.yml
-include: logstash.yml
-include: kibana.yml
+- include_tasks: elasticsearch.yml
+- include_tasks: logstash.yml
+- include_tasks: kibana.yml

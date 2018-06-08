@@ -7,7 +7,7 @@
 - name: Copying logstash.repo file to /etc/yum.repos.d/ directory
   copy:
     src: logstash.repo
-   dest: /etc/yum.repos.d/
+    dest: /etc/yum.repos.d/
 
 - name: Installing logstash...!!!
   yum:

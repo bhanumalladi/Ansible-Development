@@ -22,8 +22,15 @@
 
   roles:
     - { role: 'elk', tags: elk_tag }
-
+  
 - hosts: elk2
+
+  tasks:
+    - name: Copy the SSL certificate from the server to the clients
+      copy:
+        src: /etc/pki/tls/certs/logstash-forwarder.crt
+        dest: /etc/pki/tls/certs/
+      delegate_to: elk1
 
   roles:
     - { role: 'filebeat', tags: elk_tag }

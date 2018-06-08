@@ -40,13 +40,13 @@ PORT: 8798
 ####################################################################################################################################################
 
 ## ELK Server IP
-ELK_SERVER_IP:
+ELK_SERVER_IP: 192.168.56.106
 
 ## Port for elasticsearch service
-ELASTICSEARCH_PORT:
+ELASTICSEARCH_PORT: 9200
 
 ## port for logstash service
-LOGSTASH_PORT:
+LOGSTASH_PORT: 5044
 
 ## port for kibana service
-KIBANA_PORT:
+KIBANA_PORT: 5601

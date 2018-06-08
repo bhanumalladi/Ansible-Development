@@ -17,18 +17,6 @@
        - pcre-static
        - pcre-devel
 
-- name: Install libselinux as prerequisite for SELinux Ansible module
-  yum:
-    name: "{{item}}"
-    state: latest
-  with_items:
-    - libselinux-python
-    - libsemanage-python
-
-- name: Set SELinux in permissive mode
-  shell: setenforce 0
-  ignore_errors: true
-
 - name: Unarchive the haproxy tar file
   unarchive:
       src: "{{ ANSIBLE_SCRIPT_PATH }}/roles/haproxylb/files/haproxy-1.7.8.tar.gz"
@@ -70,7 +58,7 @@
 
 - name: Copy the file ‘haproxy.init’ from the examples to the ‘/etc/init.d’ directory
   copy:
-    src: /opt/haproxy-1.7.8/examples/haproxy.init
+    src: haproxy.init
     dest: /etc/init.d/haproxy
 
 - name: Setting permissions to haproxy file

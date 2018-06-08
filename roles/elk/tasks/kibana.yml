@@ -7,7 +7,7 @@
 - name: Copying kibana.repo file to /etc/yum.repos.d/ directory
   copy:
     src: kibana.repo
-   dest: /etc/yum.repos.d/
+    dest: /etc/yum.repos.d/
 
 - name: Installing kibana GUI...!!!
   yum:

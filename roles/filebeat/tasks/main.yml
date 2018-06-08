@@ -4,14 +4,6 @@
   shell: figlet Begin Install of filebeat client > /dev/tty
   delegate_to: localhost
 
-- hosts: elk1
-  tasks:
-  - name: Copy the SSL certificate from the server to the clients
-    copy:
-      src: /etc/pki/tls/certs/logstash-forwarder.crt
-      dest: /etc/pki/tls/certs/
-    delegate_to: elk2
-
 - name: Importing the Elasticsearch public GPG key to the rpm package manager
   rpm_key:
     state: present
@@ -43,9 +35,8 @@
   template:
     src: filebeat_template.yml
     dest: /etc/filebeat/filebeat.yml
-   notify: restart filebeat
+  notify: restart filebeat
 
-handlers:
 - name: restart filebeat
   service: 
     name: filebeat
