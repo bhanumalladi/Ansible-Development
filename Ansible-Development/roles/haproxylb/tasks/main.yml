@@ -1,0 +1,115 @@
+---
+
+- name: Ready for haproxy setup Installation
+  shell: figlet Begin HAProxy Install > /dev/tty
+  delegate_to: localhost
+
+- name: Update CentOS System
+  yum:
+     name: "*"
+     state: latest
+     update_cache: yes
+
+- name: Prerequisites to download and compile the program
+  yum:
+     name:
+       - gcc
+       - pcre-static
+       - pcre-devel
+
+- name: Install libselinux as prerequisite for SELinux Ansible module
+  yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+    - libselinux-python
+    - libsemanage-python
+
+- name: Set SELinux in permissive mode
+  shell: setenforce 0
+  ignore_errors: true
+
+- name: Unarchive the haproxy tar file
+  unarchive:
+      src: "{{ ANSIBLE_SCRIPT_PATH }}/roles/haproxylb/files/haproxy-1.7.8.tar.gz"
+      dest: /opt
+      force: yes
+
+- name: Change to haproxy folder
+  shell: make TARGET=linux2628
+  args:
+    chdir: /opt/haproxy-1.7.8
+
+- name: Install HAProxy
+  make:
+    chdir: /opt/haproxy-1.7.8
+    target: install
+  become: yes
+
+- name: Creating Directories of haproxy in target machine
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items: 
+     - /etc/haproxy
+     - /run/haproxy
+     - /var/lib/haproxy
+
+- name: Creating haproxy stats file
+  file:
+    path: /var/lib/haproxy/stats
+    state: touch
+    mode: "u=rwx,g=rw,o=rw"
+
+- name: Make a symbolic link so that the binary will allow you to run HAProxy commands as a normal user
+  file:
+    src: /usr/local/sbin/haproxy 
+    dest: /usr/sbin/haproxy
+    state: link
+
+- name: Copy the file ‘haproxy.init’ from the examples to the ‘/etc/init.d’ directory
+  copy:
+    src: /opt/haproxy-1.7.8/examples/haproxy.init
+    dest: /etc/init.d/haproxy
+
+- name: Setting permissions to haproxy file
+  file:
+    path: /etc/init.d/haproxy
+    mode: 0755
+
+- name: Reload the ‘systemd’ daemon
+  shell: systemctl daemon-reload
+
+- name: Creating haproxy user
+  user:
+    name: haproxy
+    shell: /bin/bash
+
+- name: Adding http service in firewalld
+  firewalld:
+    service: http
+    zone: public
+    permanent: true
+    state: enabled
+
+- name: Enabling port in firewalld
+  firewalld:
+    zone: public
+    permanent: true
+    port: "{{ PORT }}/tcp"
+    state: enabled
+
+- name: Reload the Firewalld
+  shell: firewall-cmd --reload
+
+- name: haproxy configuration file
+  template: 
+     src: haproxy.cfg 
+     dest: /etc/haproxy
+
+- name: Restart the haproxy service
+  service:
+     name: haproxy
+     state: restarted
+     enabled: yes

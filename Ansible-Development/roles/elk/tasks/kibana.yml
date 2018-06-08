@@ -1,0 +1,38 @@
+---
+
+- name: Begin Install of kibana
+  shell: figlet Begin Install of kibana > /dev/tty
+  delegate_to: localhost
+
+- name: Copying kibana.repo file to /etc/yum.repos.d/ directory
+  copy:
+    src: kibana.repo
+   dest: /etc/yum.repos.d/
+
+- name: Installing kibana GUI...!!!
+  yum:
+     name: kibana
+     state: latest
+     update_cache: yes
+
+- name: Reload the ‘systemd’ daemon
+  shell: systemctl daemon-reload
+
+- name: start and enable the kibana service
+  service:
+    name: kibana
+    state: started
+    enabled: yes
+
+- name: Enabling kibana port in firewalld
+  firewalld:
+    permanent: true
+    port: "{{ KIBANA_PORT }}/tcp"
+    state: enabled
+
+- name: Reload the Firewalld
+  shell: firewall-cmd --reload
+
+- name: kibana portal access details
+  shell: figlet access kibana portal at  http://{{ ELK_SERVER_IP }}:{{ KIBANA_PORT }} > /dev/tty
+  delegate_to: localhost

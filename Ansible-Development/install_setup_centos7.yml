@@ -1,0 +1,29 @@
+---
+
+- hosts: local
+  connection: local
+  
+  roles:
+    - { role: 'ssh_auth', tags: haproxy_tag } 
+    - { role: 'ssh_auth', tags: elk_tag }   
+
+- hosts: haproxy
+  
+  roles:
+    - { role: 'common_pre_req', tags: haproxy_tag }
+    - { role: 'haproxylb', tags: haproxy_tag }
+
+- hosts: elk1:elk2
+  
+  roles:
+    - { role: 'common_pre_req', tags: elk_tag }
+
+- hosts: elk1
+
+  roles:
+    - { role: 'elk', tags: elk_tag }
+
+- hosts: elk2
+
+  roles:
+    - { role: 'filebeat', tags: elk_tag }

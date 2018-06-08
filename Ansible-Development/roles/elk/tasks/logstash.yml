@@ -1,0 +1,71 @@
+---
+
+- name: Begin Install of logstash
+  shell: figlet Begin Install of logstash > /dev/tty
+  delegate_to: localhost
+
+- name: Copying logstash.repo file to /etc/yum.repos.d/ directory
+  copy:
+    src: logstash.repo
+   dest: /etc/yum.repos.d/
+
+- name: Installing logstash...!!!
+  yum:
+     name: logstash
+     state: latest
+     update_cache: yes
+
+- name: Adding elk server ip to SAN
+  lineinfile:
+    path: /etc/pki/tls/openssl.cnf
+    state: present
+    regexp: '^[ v3_ca ]'
+    insertbefore: '^# Extensions for a typical CA'
+    line: 'subjectAltName = IP: {{ ELK_SERVER_IP }}'
+
+- name: Changing to /etc/pki/tls directory for generating a self-signed certificate using openssl which will be valid for "365" days
+  shell: openssl req -config /etc/pki/tls/openssl.cnf -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt
+  args:
+    chdir: /etc/pki/tls
+
+- name: Configuring Logstash input file
+  template:
+     src: logstash_input.conf
+     dest: /etc/logstash/conf.d/input.conf
+
+- name: Configuring Logstash output file
+  template:
+     src: logstash_output.conf
+     dest: /etc/logstash/conf.d/output.conf
+
+- name: Configuring Logstash filter file
+  template:
+     src: logstash_filter.conf
+     dest: /etc/logstash/conf.d/filter.conf
+
+- name: Verifying the Logstash configuration files
+  shell: service logstash configtest
+  args:
+   chdir: /etc/logstash/conf.d
+  register: output
+
+- debug:
+    var: output
+
+- name: Reload the ‘systemd’ daemon
+  shell: systemctl daemon-reload
+
+- name: start and enable the logstash service
+  service:
+    name: logstash
+    state: started
+    enabled: yes
+
+- name: Enabling logstash port in firewalld
+  firewalld:
+    permanent: true
+    port: "{{ LOGSTASH_PORT }}/tcp"
+    state: enabled
+
+- name: Reload the Firewalld
+  shell: firewall-cmd --reload

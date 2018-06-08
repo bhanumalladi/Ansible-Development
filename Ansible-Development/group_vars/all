@@ -1,0 +1,52 @@
+---
+
+#####################################################################################################################################################
+#                                                                                                        					    #
+#                                                           HAPROXY SETUP PARAMETERS BELOW                                                          #
+#                                                                                                                                                   ######################################################################################################################################################
+
+
+## Inventory Path is needed for any of the deployment to achieve ssh authentication
+Inventory_Path: /root/Ansible-Development/hosts
+
+## This Path is required for Ansible Execution
+ANSIBLE_SCRIPT_PATH: /root/Ansible-Development
+
+## The Server name which you want to manage
+SERVER_NAME: bhanu-server
+
+## Provate ip which you want to manage
+PRIVATE_IP: 192.168.56.102
+
+## The Server name for blog_back
+BACKEND_SERVER_NAME: bhanu-backend-server
+
+## Private Ip for blog_back
+BACKEND_PRIVATE_IP: 192.168.56.103
+
+## Provide username for Authentication
+USERNAME: bhanu
+
+## Provide Password for Authentication
+PASSWORD: bhanu
+
+## Port on which HAproxy page will be displayed and port will be enabled in firewall
+PORT: 8798
+
+####################################################################################################################################################
+#                                                                                                                                                  #
+#                                                            ELK SETUP PARAMETERS BELOW                                                            #
+#                                                                                                                                                  #
+####################################################################################################################################################
+
+## ELK Server IP
+ELK_SERVER_IP:
+
+## Port for elasticsearch service
+ELASTICSEARCH_PORT:
+
+## port for logstash service
+LOGSTASH_PORT:
+
+## port for kibana service
+KIBANA_PORT:

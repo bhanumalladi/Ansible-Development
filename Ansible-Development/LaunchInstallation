@@ -1,0 +1,39 @@
+#!/usr/bin/python
+import os
+import math
+import time
+import datetime
+from datetime import datetime
+from datetime import date
+
+user_input = raw_input("Which Setup you want to Install.\nEnter the name of the setup...!!! \n 1)haproxy 2)elk : ")
+print "You have selected installation of '%s' setup." %(user_input)
+time.sleep(3)
+
+haproxy_setup_command = 'ansible-playbook -i hosts install_setup_centos7.yml --tags=haproxy_tag | tee ansible_haproxy_setup_installation.log'
+elk_setup_command = 'ansible-playbook -i hosts install_setup_centos7.yml --tags=elk_tag | tee ansible_elk_setup_installation.log'
+
+if user_input == "haproxy":
+    print "Installation of '%s' setup will begin soon...!!!" %(user_input)
+    time.sleep(3)
+    os.system('clear')
+    before = datetime.now()
+    print "Playbook Start time:  ", before.strftime("%d-%m-%Y %H:%M:%S")
+    os.system(haproxy_setup_command)
+    after = datetime.now()
+    print "Playbook End Time:  ", after.strftime("%d-%m-%Y %H:%M:%S")
+    minutes_span = math.floor(((after - before).seconds) / 60)
+    print "\nPlaybook Execution Time in minutes:  ",minutes_span
+elif user_input == "elk":
+    print "Installation of '%s' setup will begin soon...!!!" %(user_input)
+    time.sleep(3)
+    os.system('clear')
+    before = datetime.now()
+    print "Playbook Start time:  ", before.strftime("%d-%m-%Y %H:%M:%S")
+    os.system(elk_setup_command)
+    after = datetime.now()
+    print "Playbook End Time:  ", after.strftime("%d-%m-%Y %H:%M:%S")
+    minutes_span = math.floor(((after - before).seconds) / 60)
+    print "\nPlaybook Execution Time in minutes:  ",minutes_span
+else:
+    print "Ooops!!!Please Enter The Correct Setup Name For Installation...!!!"

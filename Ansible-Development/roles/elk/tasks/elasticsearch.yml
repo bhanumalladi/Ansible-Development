@@ -1,0 +1,45 @@
+---
+
+- name: Begin Install of elasticsearch
+  shell: figlet Begin Install of elasticsearch > /dev/tty
+  delegate_to: localhost
+
+- name: Importing the Elasticsearch public GPG key to the rpm package manager
+  rpm_key:
+    state: present
+    key: http://packages.elastic.co/GPG-KEY-elasticsearch
+
+- name: Copying elasticsearch.repo file to /etc/yum.repos.d/ directory
+  copy:
+    src: elasticsearch.repo
+   dest: /etc/yum.repos.d/
+
+- name: Installing elasticsearch...!!!
+  yum:
+     name: elasticsearch
+     state: latest
+     update_cache: yes
+
+- name: Reload the ‘systemd’ daemon
+  shell: systemctl daemon-reload
+
+- name: start and enable the elasticsearch service
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes
+
+- name: Enabling elasticsearch port in firewalld
+  firewalld:
+    permanent: true
+    port: "{{ ELASTICSEARCH_PORT }}/tcp"
+    state: enabled
+
+- name: Reload the Firewalld
+  shell: firewall-cmd --reload
+
+- name: Checking if Elasticsearch responds to simple requests over HTTP
+  uri:
+    url: "http://localhost:{{ ELASTICSEARCH_PORT }}"
+    method: GET
+    return_content: yes

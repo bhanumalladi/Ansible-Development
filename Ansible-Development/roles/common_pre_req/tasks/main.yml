@@ -1,0 +1,29 @@
+---
+
+- name: Begin Prequisites Checking...
+  shell: figlet Begin Pre-requisites Check > /dev/tty
+  delegate_to: localhost
+  
+- name: OS version check
+  shell: cat /etc/redhat-release 2>&1 | awk '{ print $4 }' | grep -o '^[0-9].[0-9]'
+  register: os_version
+ 
+- debug:
+    var: os_version
+
+- assert:
+     that:
+       - os_version.stdout | version_compare('7', '>=')
+     msg: "CentOS version should be 7 or greater than 7"
+
+- name: python version check
+  shell: python --version 2>&1 | awk '{print $2}'
+  register: python_version
+
+- debug:
+    var: python_version
+
+- assert:
+     that:
+       - python_version.stdout | version_compare('2.7', '>=')
+     msg: "Python version should be 2.7"

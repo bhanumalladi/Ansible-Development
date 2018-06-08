@@ -1,0 +1,52 @@
+---
+
+- name: Begin Install of filebeat client
+  shell: figlet Begin Install of filebeat client > /dev/tty
+  delegate_to: localhost
+
+- hosts: elk1
+  tasks:
+  - name: Copy the SSL certificate from the server to the clients
+    copy:
+      src: /etc/pki/tls/certs/logstash-forwarder.crt
+      dest: /etc/pki/tls/certs/
+    delegate_to: elk2
+
+- name: Importing the Elasticsearch public GPG key to the rpm package manager
+  rpm_key:
+    state: present
+    key: http://packages.elastic.co/GPG-KEY-elasticsearch
+
+- name: Copying filebeat.repo.repo file to /etc/yum.repos.d/ directory
+  copy:
+    src: filebeat.repo
+    dest: /etc/yum.repos.d/
+
+- name: Installing filebeat...!!!
+  yum:
+     name: filebeat
+     state: latest
+     update_cache: yes
+
+- name: start and enable the filebeat service
+  service:
+    name: filebeat
+    state: started
+    enabled: yes
+
+- name: Removing filebeat.yml file
+  file:
+    path: /etc/filebeat/filebeat.yml
+    state: absent
+
+- name: Configuring Filebeat
+  template:
+    src: filebeat_template.yml
+    dest: /etc/filebeat/filebeat.yml
+   notify: restart filebeat
+
+handlers:
+- name: restart filebeat
+  service: 
+    name: filebeat
+    state: restarted
